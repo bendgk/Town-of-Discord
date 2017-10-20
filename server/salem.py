@@ -11,6 +11,7 @@ class Game:
     def __init__(self):
         self.game_id = uuid.uuid4()
         self.players = []
+        self.alive = self.players
         self.deceased = []
         self.player_count = len(self.players)
         self.alive_count = self.player_count
@@ -26,6 +27,7 @@ class Game:
 
     async def new_day(self):
         self.day += 1
+        self.day()
 
     async def night(self):
         self.night = True
