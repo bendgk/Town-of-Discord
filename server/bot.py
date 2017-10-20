@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import random
-import time
+import time, os
 
 description = "An example bot to showcase the discord.ext.commands extension module."
 
@@ -42,7 +42,7 @@ async def kill(name: str, *argv: str):
     else:
         await bot.say("Don't be a greedy bastard, wait " + time.strftime('%H:%M:%S', time.gmtime(86400 - (time.time() - users[author]))))
 
-bot.run('MzcwMDQ3MzI5NTYwMTY2NDAz.DMhb2Q.MTiThgXNKYlSH0pWieXOSarTX-0')
+bot.run(os.environ['DISCORD_KEY'])
 
 """
 @bot.command()
