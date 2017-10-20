@@ -22,7 +22,7 @@ class Game:
         pass
 
     async def kill(self, player):
-        self.players.remove(player)
+        self.alive.remove(player)
         self.deceased.append(player)
 
     async def new_day(self):
