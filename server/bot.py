@@ -43,7 +43,7 @@ class Bot(commands.Bot):
     async def start_game(self, ctx):
         guild = ctx.guild
         salem_category = await guild.create_category('salem')
-        for player in self
+        #for player in self.something:
 
 bot = Bot(command_prefix='!')
 bot.run(bot.token)
