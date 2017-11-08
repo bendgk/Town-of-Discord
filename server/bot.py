@@ -1,84 +1,49 @@
 import discord
 from discord.ext import commands
-import random
-import time, os
+from discord.ext.commands.core import Command
 
-description = "An example bot to showcase the discord.ext.commands extension module."
+import salem
 
-bot = commands.Bot(command_prefix='!', description=description)
+import time, os, asyncio, json, atexit
 
-deaths = {}
-users = {}
+class Bot(commands.Bot):
+    def __init__(self, command_prefix, formatter=None, description=None, pm_help=False, **options):
+        super().__init__(command_prefix, formatter, description, pm_help, **options)
+        self.token = os.environ['DISCORD_KEY']
 
-@bot.event
-async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
-    print('-' * len(bot.user.id))
+        #commands
+        self.add_command(Command('salem', self.salem))
 
-@bot.command()
-async def rawr():
-    await bot.say("XD")
+        #salem
+        #{guild_id: game_object}
+        self.games = dict()
 
-@bot.command()
-async def kill(name: str, *argv: str):
-    author = commands.bot._get_variable('_internal_author')
+    async def on_ready(self):
+        print('Logged in as')
+        print(self.user.name)
+        print(self.user.id)
+        print('-' * len(str(self.user.id)))
+        print(self.commands)
 
-    if author not in users:
-        users[author] = time.time() + 86500
+    async def salem(self, ctx):
+        if ctx.guild not in self.games:
+            self.games[ctx.guild] = salem.Game(ctx.guild)
 
-    if users[author] - time.time() >= 86400:
-        for i in argv:
-            name = name + " " + i
+        await self.games[ctx.guild].add_player(salem.Player(ctx.author))
 
-        if name not in deaths:
-            deaths[name] = 0
+        if len(self.games[ctx.guild].players) >= 2:
+            await self.start_game(ctx)
 
-        deaths[name] += 1
-        users[author] = time.time()
-        await bot.say(name + " has died " + str(deaths[name]) + " time(s)")
+            #debug stuff
+            for k, v in self.games.items():
+                print(k, v)
+                for player in self.games[k].players:
+                    print(player.user)
 
-    else:
-        await bot.say("Don't be a greedy bastard, wait " + time.strftime('%H:%M:%S', time.gmtime(86400 - (time.time() - users[author]))))
+    async def start_game(self, ctx):
+        guild = ctx.guild
+        salem_category = await guild.create_category('salem')
+        for player in self
 
-bot.run(os.environ['DISCORD_KEY'])
-
-"""
-@bot.command()
-async def add(left : int, right : int):
-    await bot.say(left + right)
-
-@bot.command()
-async def roll(dice : str):
-    try:
-        rolls, limit = map(int, dice.split('d'))
-    except Exception:
-        await bot.say('Format has to be in NdN!')
-        return
-
-    result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
-    await bot.say(result)
-
-@bot.command(description='For when you wanna settle the score some other way')
-async def choose(*choices : str):
-    await bot.say(random.choice(choices))
-
-@bot.command()
-async def repeat(times : int, content='repeating...'):
-    for i in range(times):
-        await bot.say(content)
-
-@bot.command()
-async def joined(member : discord.Member):
-    await bot.say('{0.name} joined in {0.joined_at}'.format(member))
-
-@bot.group(pass_context=True)
-async def cool(ctx):
-    if ctx.invoked_subcommand is None:
-        await bot.say('No, {0.subcommand_passed} is not cool'.format(ctx))
-
-@cool.command(name='bot')
-async def _bot():
-    await bot.say('Yes, the bot is cool.')
-"""
+bot = Bot(command_prefix='!')
+bot.run(bot.token)

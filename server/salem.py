@@ -2,22 +2,21 @@ import uuid
 import asyncio
 
 class Player:
-    def __init__(self, p_id, name):
-        self.id = p_id
+    def __init__(self, user, name=""):
+        self.user = user
         self.name = name
         self.alive = False
 
 class Game:
-    def __init__(self):
-        self.game_id = uuid.uuid4()
-        self.players = []
-        self.deceased = []
-        self.player_count = len(self.players)
-        self.alive_count = self.player_count
-        self.day = 1
+    def __init__(self, guild):
+        self.guild = guild
+        self.players = set()
+        self.deceased = set()
+        self.day = 0
         self.night = False
 
-    async def add_player(self):
+    async def add_player(self, player):
+        self.players.add(player)
         pass
 
     async def kill(self, player):
@@ -26,11 +25,7 @@ class Game:
 
     async def new_day(self):
         self.day += 1
+        self.night = False
 
     async def night(self):
         self.night = True
-
-    async def day(self):
-        self.night = False
-
-g = Game()
