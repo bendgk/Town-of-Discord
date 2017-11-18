@@ -1,4 +1,3 @@
-import uuid
 import asyncio
 
 class Player:
@@ -14,7 +13,12 @@ class Game:
         self.deceased = set()
         self.day = 0
         self.night = False
+        self.state = False
 
+    async def start_game(self):
+        self.state = True
+
+    #takes in a Player() object
     async def add_player(self, player):
         self.players.add(player)
         pass
